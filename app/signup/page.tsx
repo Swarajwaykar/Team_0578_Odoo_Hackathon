@@ -1,0 +1,52 @@
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+export default function SignupPage() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bold text-gray-900">Sign Up</CardTitle>
+          <CardDescription className="text-gray-600">
+            Create your account to join the EcoWear community.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input id="username" type="text" placeholder="eco_fashionista" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="m@example.com" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input id="confirm-password" type="password" required />
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+            >
+              Sign Up
+            </Button>
+          </form>
+          <div className="mt-6 text-center text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium text-green-600 hover:underline">
+              Log In
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
