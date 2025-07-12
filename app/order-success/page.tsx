@@ -1,38 +1,93 @@
-// This file was left out for brevity in previous turns. Its content is assumed to be correct and unchanged.
-// Placeholder content for demonstration. In a real scenario, this would be the full file content.
+"use client"
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { CheckCircle, Home, ShoppingBag, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export default function OrderSuccessPage() {
+  const [orderDetails, setOrderDetails] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  // Mock order data - replace with actual order data from URL params or API
+  const mockOrderDetails = {
+    orderId: "ORD" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+    item: {
+      title: "Designer Denim Jacket",
+      brand: "Levi's",
+      size: "M",
+      price: 2499,
+      image: "/placeholder.svg?height=100&width=100",
+    },
+    seller: {
+      name: "Sarah Chen",
+      rating: 4.9,
+      location: "Mumbai, India",
+    },
+    shipping: {
+      address: "123 Main Street, Apartment 4B, Mumbai, Maharashtra 400001",
+      estimatedDelivery: "3-5 business days",
+      trackingId: "TRK" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+    },
+    payment: {
+      method: "Razorpay",
+      amount: 2499,
+      status: "completed",
+    },
+    orderDate: new Date().toISOString(),
+  }
+
+  useEffect(() => {
+    // Simulate loading order details
+    setTimeout(() => {
+      setOrderDetails(mockOrderDetails)
+      setLoading(false)
+    }, 1500)
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Processing your exchange...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4">
-      <Card className="w-full max-w-md text-center">
-        <CardHeader className="space-y-1">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <CardTitle className="text-3xl font-bold text-gray-900">Exchange Successful!</CardTitle>
-          <CardDescription className="text-gray-600">
-            Your Eco Points exchange has been successfully processed.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-lg text-gray-700">
-            Thank you for contributing to sustainable fashion! You'll receive a confirmation email shortly with details
-            about your exchange.
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md text-center border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+        <CardContent className="p-8">
+          <div className="w-20 h-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="h-10 w-10 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">Exchange Successful! 🌱</h1>
+          <p className="text-gray-600 mb-6">
+            Your sustainable fashion exchange has been successfully placed. You've made a positive impact!
           </p>
-          <div className="flex flex-col gap-4">
-            <Link href="/dashboard" passHref>
-              <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
-                Go to Dashboard
+          <div className="space-y-4">
+            <Link href="/dashboard">
+              <Button
+                size="lg"
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              >
+                View My Dashboard
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/products" passHref>
-              <Button
-                variant="outline"
-                className="w-full border-green-200 text-green-600 hover:bg-green-50 bg-transparent"
-              >
+            <Link href="/products">
+              <Button size="lg" variant="outline" className="w-full border-green-200 hover:bg-green-50 bg-transparent">
                 Continue Shopping
+                <ShoppingBag className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button size="lg" variant="ghost" className="w-full text-green-600 hover:bg-green-50">
+                Back to Homepage
+                <Home className="ml-2 h-5 w-5" />
               </Button>
             </Link>
           </div>

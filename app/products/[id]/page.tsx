@@ -392,17 +392,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   <Eye className="h-3 w-3 mr-1" />
                   {product.stats.views}
                 </Badge>
-                <Badge variant="secondary" className="text-gray-700">
-                  <Heart className="h-3 w-3 mr-1" />
-                  {product.stats.likes}
-                </Badge>
               </div>
               <div className="absolute bottom-4 left-4 flex space-x-2">
                 <Badge className="bg-green-600 text-white">
-                  <Wind className="h-4 w-4 mr-2" />-{product.carbonSaved}
+                  <Wind className="h-3 w-3 mr-1" />-{product.carbonSaved}
                 </Badge>
                 <Badge className="bg-blue-600 text-white">
-                  <Droplets className="h-4 w-4 mr-2" />-{product.waterSaved}
+                  <Droplets className="h-3 w-3 mr-1" />-{product.waterSaved}
                 </Badge>
               </div>
             </div>

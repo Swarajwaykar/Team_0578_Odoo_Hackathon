@@ -1,243 +1,374 @@
-// This file was left out for brevity in previous turns. Its content is assumed to be correct and unchanged.
-// Placeholder content for demonstration. In a real scenario, this would be the full file content.
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Paperclip, Send, Smile, MoreHorizontal } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+"use client"
+
 import { Badge } from "@/components/ui/badge"
 
+import { useState, useEffect, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  ArrowLeft,
+  Leaf,
+  Search,
+  Paperclip,
+  Send,
+  Smile,
+  MoreHorizontal,
+  Phone,
+  Video,
+  Info,
+  Check,
+  CheckCheck,
+  CircleDotDashed,
+} from "lucide-react"
+import Link from "next/link"
+
 export default function MessagesPage() {
-  const conversations = [
+  const [conversations, setConversations] = useState([])
+  const [selectedConversation, setSelectedConversation] = useState(null)
+  const [newMessage, setNewMessage] = useState("")
+  const [loading, setLoading] = useState(true)
+  const messagesEndRef = useRef(null)
+
+  // Mock data
+  const mockConversations = [
     {
       id: 1,
-      name: "Alice Smith",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Sounds good! When can you ship?",
-      time: "2m ago",
-      unread: 2,
-      online: true,
+      user: {
+        name: "Sarah Chen",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: true,
+        lastActive: "online",
+      },
+      lastMessage: "Is the denim jacket still available?",
+      lastMessageTime: "10:30 AM",
+      unreadCount: 2,
+      messages: [
+        { id: 1, sender: "Sarah Chen", text: "Hi! Is the denim jacket still available?", time: "10:28 AM", read: true },
+        { id: 2, sender: "You", text: "Yes, it is! What size are you looking for?", time: "10:29 AM", read: true },
+        {
+          id: 3,
+          sender: "Sarah Chen",
+          text: "Great! I'm interested in size M. Can you tell me more about its condition?",
+          time: "10:30 AM",
+          read: false,
+        },
+        {
+          id: 4,
+          sender: "Sarah Chen",
+          text: "Also, is the AR try-on feature working for this item?",
+          time: "10:30 AM",
+          read: false,
+        },
+      ],
     },
     {
       id: 2,
-      name: "Bob Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "I'm interested in the denim jacket.",
-      time: "1h ago",
-      unread: 0,
-      online: false,
+      user: {
+        name: "Mike Johnson",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: false,
+        lastActive: "2 hours ago",
+      },
+      lastMessage: "Thanks for the recycled boots!",
+      lastMessageTime: "Yesterday",
+      unreadCount: 0,
+      messages: [
+        {
+          id: 1,
+          sender: "Mike Johnson",
+          text: "Hey, just received the recycled boots. They're great!",
+          time: "Yesterday 3:00 PM",
+          read: true,
+        },
+        {
+          id: 2,
+          sender: "You",
+          text: "Awesome! Glad you like them. Enjoy your sustainable steps! 🌱",
+          time: "Yesterday 3:05 PM",
+          read: true,
+        },
+      ],
     },
     {
       id: 3,
-      name: "Charlie Brown",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Thanks for the exchange!",
-      time: "Yesterday",
-      unread: 0,
-      online: true,
-    },
-    {
-      id: 4,
-      name: "Diana Prince",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Can you send more photos?",
-      time: "2 days ago",
-      unread: 1,
-      online: false,
-    },
-  ]
-
-  const messages = [
-    {
-      id: 1,
-      sender: "Alice Smith",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "Hi! I'm interested in your organic cotton dress. Is it still available?",
-      time: "10:00 AM",
-      isSelf: false,
-    },
-    {
-      id: 2,
-      sender: "You",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "Hi Alice! Yes, it is. What would you like to know?",
-      time: "10:02 AM",
-      isSelf: true,
-    },
-    {
-      id: 3,
-      sender: "Alice Smith",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "Great! What's the condition like? Any flaws?",
-      time: "10:05 AM",
-      isSelf: false,
-    },
-    {
-      id: 4,
-      sender: "You",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "It's in excellent condition, no visible flaws. Worn only a couple of times.",
-      time: "10:07 AM",
-      isSelf: true,
-    },
-    {
-      id: 5,
-      sender: "Alice Smith",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "Sounds good! When can you ship?",
-      time: "10:10 AM",
-      isSelf: false,
-      read: true,
-    },
-    {
-      id: 6,
-      sender: "You",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "I can ship it tomorrow morning.",
-      time: "10:12 AM",
-      isSelf: true,
-      read: false,
+      user: {
+        name: "EcoWear Support",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: true,
+        lastActive: "online",
+      },
+      lastMessage: "Your new achievement 'Eco Champion' is unlocked!",
+      lastMessageTime: "Jan 15",
+      unreadCount: 1,
+      messages: [
+        {
+          id: 1,
+          sender: "EcoWear Support",
+          text: "Congratulations! Your new achievement 'Eco Champion' is unlocked! Keep up the great work!",
+          time: "Jan 15 9:00 AM",
+          read: true,
+        },
+        {
+          id: 2,
+          sender: "EcoWear Support",
+          text: "You've earned 100 bonus points for your dedication to sustainable fashion!",
+          time: "Jan 15 9:01 AM",
+          read: false,
+        },
+      ],
     },
   ]
 
-  const currentConversation = conversations[0] // Assuming the first conversation is active
+  useEffect(() => {
+    // Simulate loading conversations
+    setTimeout(() => {
+      setConversations(mockConversations)
+      setSelectedConversation(mockConversations[0]) // Select the first conversation by default
+      setLoading(false)
+    }, 1000)
+  }, [])
+
+  useEffect(() => {
+    // Scroll to bottom of messages when conversation changes or new message is added
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [selectedConversation])
+
+  const handleSendMessage = () => {
+    if (newMessage.trim() && selectedConversation) {
+      const updatedConversations = conversations.map((conv) => {
+        if (conv.id === selectedConversation.id) {
+          const newMsg = {
+            id: conv.messages.length + 1,
+            sender: "You",
+            text: newMessage,
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            read: false, // Will be marked as read by recipient
+          }
+          return {
+            ...conv,
+            messages: [...conv.messages, newMsg],
+            lastMessage: newMessage,
+            lastMessageTime: newMsg.time,
+            unreadCount: 0, // Reset unread count for sender
+          }
+        }
+        return conv
+      })
+      setConversations(updatedConversations)
+      setSelectedConversation(updatedConversations.find((conv) => conv.id === selectedConversation.id))
+      setNewMessage("")
+    }
+  }
+
+  const markAsRead = (conversationId) => {
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === conversationId
+          ? { ...conv, unreadCount: 0, messages: conv.messages.map((msg) => ({ ...msg, read: true })) }
+          : conv,
+      ),
+    )
+    if (selectedConversation && selectedConversation.id === conversationId) {
+      setSelectedConversation((prev) => ({
+        ...prev,
+        unreadCount: 0,
+        messages: prev.messages.map((msg) => ({ ...msg, read: true })),
+      }))
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your eco-conversations...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4 md:p-8">
-      <Card className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 h-[calc(100vh-64px)]">
-        {/* Conversation List */}
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md flex flex-col">
-          <CardTitle className="text-2xl font-bold text-gray-900 mb-4">Messages</CardTitle>
-          <Input placeholder="Search conversations..." className="mb-4" />
-          <ScrollArea className="flex-1 pr-4 -mr-4">
-            <div className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-green-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/dashboard" className="flex items-center space-x-2 text-gray-600 hover:text-green-600">
+              <ArrowLeft className="h-5 w-5" />
+              <span>Back to Dashboard</span>
+            </Link>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                <Leaf className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                EcoWear
+              </span>
+            </Link>
+            <div className="w-24" />
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
+          <p className="text-gray-600">Connect with other eco-conscious fashion lovers</p>
+        </div>
+
+        <Card className="h-[calc(100vh-250px)] flex border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+          {/* Conversation List */}
+          <div className="w-80 border-r border-gray-200 flex flex-col">
+            <div className="p-4 border-b border-gray-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input placeholder="Search conversations..." className="pl-10" />
+              </div>
+            </div>
+            <ScrollArea className="flex-1">
               {conversations.map((conv) => (
                 <div
                   key={conv.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    conv.id === currentConversation.id ? "bg-green-100 text-green-800" : "hover:bg-green-50"
+                  className={`flex items-center p-4 cursor-pointer hover:bg-green-50 transition-colors ${
+                    selectedConversation?.id === conv.id ? "bg-green-100" : ""
                   }`}
+                  onClick={() => {
+                    setSelectedConversation(conv)
+                    markAsRead(conv.id)
+                  }}
                 >
                   <div className="relative">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={conv.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>{conv.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={conv.user.avatar || "/placeholder.svg"} />
+                      <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    {conv.online && (
+                    {conv.user.online && (
                       <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
                     )}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <p className="font-semibold">{conv.name}</p>
-                      <span className="text-xs text-gray-500">{conv.time}</span>
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900">{conv.user.name}</h3>
+                      <span className="text-xs text-gray-500">{conv.lastMessageTime}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-600 truncate">{conv.lastMessage}</p>
-                      {conv.unread > 0 && (
-                        <Badge className="bg-green-500 text-white rounded-full px-2 py-0.5 text-xs">
-                          {conv.unread}
-                        </Badge>
-                      )}
-                    </div>
+                    <p className="text-sm text-gray-600 truncate">{conv.lastMessage}</p>
                   </div>
+                  {conv.unreadCount > 0 && (
+                    <Badge className="ml-2 bg-green-600 text-white rounded-full px-2 py-0.5 text-xs">
+                      {conv.unreadCount}
+                    </Badge>
+                  )}
                 </div>
               ))}
-            </div>
-          </ScrollArea>
-        </div>
+            </ScrollArea>
+          </div>
 
-        {/* Message Thread */}
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md flex flex-col">
-          {currentConversation ? (
-            <>
-              <div className="flex items-center justify-between pb-4 border-b border-green-100 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={currentConversation.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>{currentConversation.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    {currentConversation.online && (
-                      <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
-                    )}
+          {/* Message Thread */}
+          <div className="flex-1 flex flex-col">
+            {selectedConversation ? (
+              <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={selectedConversation.user.avatar || "/placeholder.svg"} />
+                        <AvatarFallback>{selectedConversation.user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      {selectedConversation.user.online && (
+                        <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{selectedConversation.user.name}</h3>
+                      <p className="text-sm text-gray-600">{selectedConversation.user.lastActive}</p>
+                    </div>
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">{currentConversation.name}</h2>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                  <div className="flex items-center space-x-2">
+                    <Button variant="ghost" size="icon">
+                      <Phone className="h-5 w-5 text-gray-600" />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <Video className="h-5 w-5 text-gray-600" />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <Info className="h-5 w-5 text-gray-600" />
+                    </Button>
                     <Button variant="ghost" size="icon">
                       <MoreHorizontal className="h-5 w-5 text-gray-600" />
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Report User</DropdownMenuItem>
-                    <DropdownMenuItem>Block User</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                  </div>
+                </div>
 
-              <ScrollArea className="flex-1 pr-4 -mr-4 mb-4">
-                <div className="space-y-4">
-                  {messages.map((message) => (
+                {/* Messages */}
+                <ScrollArea className="flex-1 p-4 space-y-4">
+                  {selectedConversation.messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex items-end gap-3 ${message.isSelf ? "justify-end" : "justify-start"}`}
+                      className={`flex ${message.sender === "You" ? "justify-end" : "justify-start"}`}
                     >
-                      {!message.isSelf && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={message.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>{message.sender.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      )}
                       <div
                         className={`max-w-[70%] p-3 rounded-lg ${
-                          message.isSelf
+                          message.sender === "You"
                             ? "bg-green-600 text-white rounded-br-none"
-                            : "bg-gray-100 text-gray-800 rounded-bl-none"
+                            : "bg-gray-100 text-gray-900 rounded-bl-none"
                         }`}
                       >
-                        <p>{message.content}</p>
-                        <p className={`text-xs mt-1 ${message.isSelf ? "text-green-100" : "text-gray-500"}`}>
-                          {message.time}
-                          {message.isSelf && message.read && <span className="ml-2">✓ Read</span>}
-                          {message.isSelf && !message.read && <span className="ml-2">✓ Sent</span>}
-                        </p>
+                        <p className="text-sm">{message.text}</p>
+                        <div
+                          className={`text-xs mt-1 ${message.sender === "You" ? "text-green-200" : "text-gray-500"} flex items-center justify-end`}
+                        >
+                          <span>{message.time}</span>
+                          {message.sender === "You" &&
+                            (message.read ? (
+                              <CheckCheck className="h-3 w-3 ml-1" />
+                            ) : (
+                              <Check className="h-3 w-3 ml-1" />
+                            ))}
+                        </div>
                       </div>
-                      {message.isSelf && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={message.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>{message.sender.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      )}
                     </div>
                   ))}
-                </div>
-              </ScrollArea>
+                  <div ref={messagesEndRef} />
+                </ScrollArea>
 
-              <div className="flex items-center gap-2 pt-4 border-t border-green-100">
-                <Button variant="ghost" size="icon">
-                  <Paperclip className="h-5 w-5 text-gray-600" />
-                </Button>
-                <Input placeholder="Type your message..." className="flex-1" />
-                <Button variant="ghost" size="icon">
-                  <Smile className="h-5 w-5 text-gray-600" />
-                </Button>
-                <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
-                  <Send className="h-5 w-5" />
-                </Button>
+                {/* Message Input */}
+                <div className="p-4 border-t border-gray-200 flex items-center space-x-2">
+                  <Button variant="ghost" size="icon">
+                    <Paperclip className="h-5 w-5 text-gray-600" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <Smile className="h-5 w-5 text-gray-600" />
+                  </Button>
+                  <Input
+                    placeholder="Type your message..."
+                    className="flex-1"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  />
+                  <Button onClick={handleSendMessage} className="bg-green-600 hover:bg-green-700">
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <CircleDotDashed className="h-16 w-16 mx-auto mb-4" />
+                  <p className="text-lg">Select a conversation to start chatting</p>
+                </div>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-600">
-              Select a conversation to start chatting.
-            </div>
-          )}
-        </div>
-      </Card>
+            )}
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }
